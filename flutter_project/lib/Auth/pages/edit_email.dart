@@ -4,20 +4,18 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../config.dart';
 
-class EditUsernamePage extends StatefulWidget {
-  const EditUsernamePage({super.key});
+class EditEmail extends StatefulWidget {
+  const EditEmail({super.key});
 
   @override
-  State<EditUsernamePage> createState() => _EditUsernamePageState();
+  State<EditEmail> createState() => _EditEmailState();
 }
 
-class _EditUsernamePageState extends State<EditUsernamePage> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _lastnameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  bool _isSaving = false;
+class _EditEmailState extends State<EditEmail> {
+  final TextEditingController _emailcontroller = TextEditingController();
 
   String userId = '';
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -32,9 +30,8 @@ class _EditUsernamePageState extends State<EditUsernamePage> {
     userId = payload['user_id'].toString();
 
     // ดึงจาก local (หรือเพิ่มให้เรียก API มา preload ก็ได้)
-    _usernameController.text = prefs.getString('user_name') ?? '';
-    _lastnameController.text = '';
-    _phoneController.text = '';
+    _emailcontroller.text = prefs.getString('user_email') ?? '';
+    ;
   }
 
   Map<String, dynamic> _decodeToken(String token) {
@@ -48,16 +45,11 @@ class _EditUsernamePageState extends State<EditUsernamePage> {
   Future<void> _saveProfile() async {
     setState(() => _isSaving = true);
 
-    final url = Uri.parse('${AppConfig.baseUrl}/users/$userId/profile');
+    final url = Uri.parse('${AppConfig.baseUrl}/users/$userId/email');
     final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'first_name': _usernameController.text,
-        'lastname': _lastnameController.text,
-        'phone_number': int.tryParse(_phoneController.text),
-        'photo': null,
-      }),
+      body: jsonEncode({'email': _emailcontroller.text}),
     );
 
     setState(() => _isSaving = false);
@@ -66,11 +58,11 @@ class _EditUsernamePageState extends State<EditUsernamePage> {
       Navigator.pop(context); // ✅ กลับหน้าเดิม
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('✅ Profile updated')));
+      ).showSnackBar(const SnackBar(content: Text('✅ Email updated')));
     } else {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Failed to update profile')));
+      ).showSnackBar(const SnackBar(content: Text('Failed to update email')));
     }
   }
 
@@ -80,10 +72,7 @@ class _EditUsernamePageState extends State<EditUsernamePage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF084886),
         title: const Center(
-          child: Text(
-            "Edit Your Profile",
-            style: TextStyle(color: Colors.white),
-          ),
+          child: Text("Edit Your Email", style: TextStyle(color: Colors.white)),
         ),
       ),
       body: Padding(
@@ -92,35 +81,15 @@ class _EditUsernamePageState extends State<EditUsernamePage> {
           children: [
             const SizedBox(height: 16),
             TextField(
-              controller: _usernameController,
+              controller: _emailcontroller,
               decoration: InputDecoration(
-                hintText: 'Enter your username',
+                hintText: 'Enter your Email',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _lastnameController,
-              decoration: InputDecoration(
-                hintText: 'Enter your lastname',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                hintText: 'Enter your Phone Number',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
+
             const SizedBox(height: 16),
             const Text(
               'Usernames can contain only letters, numbers, underscores, and periods.',

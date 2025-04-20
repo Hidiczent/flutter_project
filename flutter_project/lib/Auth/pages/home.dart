@@ -1,12 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project/Auth/pages/Display_message.dart';
 import 'package:flutter_project/Auth/pages/account_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'notification_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    checkToken(); // ✅ เรียกเมื่อตอนเข้า
+  }
+
+  void checkToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
+    if (token != null) {
+      print("🔐 Token: $token");
+      // ✅ คุณสามารถ decode JWT หรือ fetch ข้อมูลผู้ใช้ที่นี่ได้
+    } else {
+      print("❌ No token found");
+    }
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -129,7 +151,7 @@ class HomePage extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           sectionTitle('Popular Province'),
-          imageCard('Vientiane', 'assets/images/vientiane.jpg'),
+          imageCard('Vientiane', 'assets/images/Default.jpg'),
 
           sectionTitle('Popular Activities'),
           Row(
@@ -137,12 +159,12 @@ class HomePage extends StatelessWidget {
               Expanded(
                 child: activityCard(
                   'Cooking class',
-                  'assets/images/activity1.jpg',
+                  'assets/images/activity.jpg',
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: activityCard('Weaving', 'assets/images/activity2.jpg'),
+                child: activityCard('Weaving', 'assets/images/activity.jpg'),
               ),
             ],
           ),
@@ -153,14 +175,14 @@ class HomePage extends StatelessWidget {
               Expanded(
                 child: imageCard(
                   'Kuangsi Waterfall',
-                  'assets/images/place1.jpg',
+                  'assets/images/Default.jpg',
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: imageCard(
                   'That Luang Stupa',
-                  'assets/images/place2.jpg',
+                  'assets/images/Default.jpg',
                 ),
               ),
             ],
@@ -184,12 +206,15 @@ class HomePage extends StatelessWidget {
               Expanded(
                 child: imageCard(
                   'Phou Khao Khouay',
-                  'assets/images/mountain.jpg',
+                  'assets/images/activity.jpg',
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: imageCard('Wat Xieng Thong', 'assets/images/temple.jpg'),
+                child: imageCard(
+                  'Wat Xieng Thong',
+                  'assets/images/activity.jpg',
+                ),
               ),
             ],
           ),

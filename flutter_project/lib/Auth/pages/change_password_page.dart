@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../config.dart'; // import baseUrl
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
@@ -12,18 +16,87 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _logoutOtherDevices = true;
+  bool _isSaving = false;
+  String userId = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserId();
+  }
+
+  Future<void> _loadUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token') ?? '';
+    final parts = token.split('.');
+    if (parts.length == 3) {
+      final payload = utf8.decode(
+        base64Url.decode(base64Url.normalize(parts[1])),
+      );
+      final data = json.decode(payload);
+      setState(() {
+        userId = data['user_id'].toString();
+      });
+    }
+  }
+
+  Future<void> _changePassword() async {
+    final oldPass = _currentPasswordController.text.trim();
+    final newPass = _newPasswordController.text.trim();
+    final confirmPass = _confirmPasswordController.text.trim();
+
+    if (oldPass.isEmpty || newPass.isEmpty || confirmPass.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
+    if (newPass != confirmPass) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('New passwords do not match')),
+      );
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    final url = Uri.parse('${AppConfig.baseUrl}/users/$userId/password');
+    final response = await http.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'old_password': oldPass, 'new_password': newPass}),
+    );
+
+    setState(() => _isSaving = false);
+
+    if (response.statusCode == 200) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('✅ Password updated successfully')),
+      );
+    } else if (response.statusCode == 401) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('❌ Old password is incorrect')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('❌ Failed to update password')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF084886),
         elevation: 0,
         centerTitle: true,
         title: const Text(
           'Change Password',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -39,31 +112,20 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           ),
           const SizedBox(height: 20),
 
-          // Current password
           _passwordField('Current Password', _currentPasswordController),
-
-          // New password
           _passwordField('New Password', _newPasswordController),
-
-          // Confirm password
           _passwordField('Confirm New Password', _confirmPasswordController),
 
           const SizedBox(height: 12),
-
-          // Forgot password
           TextButton(
-            onPressed: () {
-              // handle forgot password
-            },
+            onPressed: () {},
             child: const Text(
               'Forgot your password?',
               style: TextStyle(color: Colors.blue),
             ),
           ),
-
           const SizedBox(height: 12),
 
-          // Checkbox: Logout from other devices
           CheckboxListTile(
             contentPadding: EdgeInsets.zero,
             value: _logoutOtherDevices,
@@ -78,23 +140,27 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           ),
 
           const SizedBox(height: 20),
-
-          // Button
           ElevatedButton(
-            onPressed: () {
-              // Handle password change
-            },
+            onPressed: _isSaving ? null : _changePassword,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF084886),
               padding: const EdgeInsets.symmetric(vertical: 16),
+              minimumSize: const Size.fromHeight(50),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(32),
               ),
             ),
-            child: const Text(
-              'Change Password',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
+            child:
+                _isSaving
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                      'Change Password',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
           ),
         ],
       ),
@@ -110,7 +176,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         decoration: InputDecoration(
           labelText: label,
           filled: true,
-          fillColor: Colors.grey[100],
+          fillColor: Colors.white,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),

@@ -1,9 +1,83 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/Auth/pages/start.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
-class LoginPage extends StatelessWidget {
+import 'package:flutter_project/Auth/pages/SignUp.dart';
+import 'package:flutter_project/Auth/pages/start.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+
+import '../../../config.dart'; // ✅ import config
+
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  bool _isLoading = false;
+
+  Future<void> _loginUser() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter email and password')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final url = Uri.parse('${AppConfig.baseUrl}/login');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final token = data['token'];
+        final name = data['name'] ?? 'No Name';
+        final userEmail = data['email'] ?? 'No Email';
+
+        print("✅ Login successful. Token: $token");
+        print("👤 Name: $name");
+        print("📧 Email: $userEmail");
+
+        // ✅ Save to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('jwt_token', token);
+        await prefs.setString('user_name', name);
+        await prefs.setString('user_email', userEmail);
+
+        // ✅ Navigate to HomePage or IntroPage
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const IntroPage()),
+        );
+      } else {
+        print("❌ Login failed: ${response.body}");
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Login failed')));
+      }
+    } catch (e) {
+      print("❌ Error: $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Network error')));
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,26 +89,24 @@ class LoginPage extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 40),
-
-              // Logo
               Center(
                 child: Image.asset(
-                  'assets/images/lao_epic_logo.png', // replace with your logo image
-                  height: 60,
+                  'assets/images/lao_epic_logo.png',
+                  height: 200,
+                  width: 200,
                 ),
               ),
-              const SizedBox(height: 24),
-
               const Text(
                 'Login',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 24),
 
-              // Email or Phone input
+              // Email input
               TextField(
+                controller: _emailController,
                 decoration: InputDecoration(
-                  hintText: 'Number or Email',
+                  hintText: 'Email',
                   filled: true,
                   fillColor: Colors.grey[100],
                   contentPadding: const EdgeInsets.symmetric(
@@ -51,10 +123,11 @@ class LoginPage extends StatelessWidget {
 
               // Password input
               TextField(
+                controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   hintText: 'Password',
-                  suffixIcon: Icon(Icons.visibility_off),
+                  suffixIcon: const Icon(Icons.visibility_off),
                   filled: true,
                   fillColor: Colors.grey[100],
                   contentPadding: const EdgeInsets.symmetric(
@@ -93,66 +166,25 @@ class LoginPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Google Login Button
               socialLoginButton(
-                iconPath:
-                    'assets/images/google-logo.svg', // place your Google icon
+                iconPath: 'assets/images/google-logo.svg',
                 text: 'Login with Google',
                 onTap: () {},
               ),
-
-              const SizedBox(height: 12),
-
-              // Facebook Login Button
+              const SizedBox(height: 10),
               socialLoginButton(
-                iconPath:
-                    'assets/images/Facebook.svg', // place your Facebook icon
+                iconPath: 'assets/images/Facebook.svg',
                 text: 'Login with Facebook',
                 onTap: () {},
               ),
-
               const Spacer(),
 
-              // Bottom buttons
               Row(
                 children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context); // ✅ กลับไปหน้า SignInPage
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF084886),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            16,
-                          ), // 🔁 ทำให้มนนุ่มขึ้น
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 20,
-                        ), // 🔁 ขนาดใหญ่ขึ้น
-                      ),
-                      child: const Text(
-                        'Sign in',
-                        style: TextStyle(
-                          color: Colors.white, // ✅ ตัวอักษรสีขาว
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
                   const SizedBox(width: 22),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const IntroPage(),
-                          ),
-                        );
-                      },
+                      onPressed: _isLoading ? null : _loginUser,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF084886),
                         shape: RoundedRectangleBorder(
@@ -160,20 +192,37 @@ class LoginPage extends StatelessWidget {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 20),
                       ),
-                      child: const Text(
-                        'Continue',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child:
+                          _isLoading
+                              ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                              : const Text(
+                                'Continue',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SignUp()),
+                  );
+                },
+                child: const Text(
+                  "Create New Account",
+                  style: TextStyle(color: Colors.blue, fontSize: 16),
+                ),
+              ),
             ],
           ),
         ),
@@ -181,7 +230,6 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  // Social Login Button Helper
   Widget socialLoginButton({
     required String iconPath,
     required String text,
