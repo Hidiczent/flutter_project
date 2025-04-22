@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_project/Auth/pages/account_page.dart';
 import 'package:flutter_project/Auth/pages/change_password_page.dart';
 import 'package:flutter_project/Auth/pages/edit_email.dart';
 import 'package:flutter_project/Auth/pages/edit_username_page.dart';
@@ -54,7 +55,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       final data = jsonDecode(payload);
       return data['user_id']?.toString();
     } catch (e) {
-      print('❌ Token decode failed: $e');
+      // print('❌ Token decode failed: $e');
       return null;
     }
   }
@@ -78,13 +79,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
 
     setState(() => _isSaving = false);
+    if (!mounted) return;
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('✅ Profile updated')));
+
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const AccountPage()),
+      );
     } else {
-      print("❌ Response: ${response.body}");
+      // print("❌ Response: ${response.body}");
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Failed to update profile')));
@@ -96,12 +106,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit profile'),
+        title: const Text(
+          'Edit profile',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xFF084886),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -143,7 +156,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           // Name field (editable)
           _infoTile(
             'Edit Profile ',
-            '',
+            'Tap to update Profile',
             onTap: () {
               Navigator.push(
                 context,
@@ -157,7 +170,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           // Username field (ไม่แก้ไข)
           _infoTile(
             'Email',
-            '',
+            'Tap to update Email',
             onTap: () {
               Navigator.push(
                 context,
@@ -207,7 +220,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Widget _infoTile(String title, String value, {VoidCallback? onTap}) {
     return ListTile(
-      contentPadding: EdgeInsets.zero,
+      contentPadding: EdgeInsets.all(5),
       title: Text(title),
       subtitle: Text(value, style: const TextStyle(color: Colors.black)),
       trailing: const Icon(Icons.chevron_right),

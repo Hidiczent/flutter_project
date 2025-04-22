@@ -13,72 +13,101 @@ class Displaymenu extends StatefulWidget {
 
 class _DisplaymenuState extends State<Displaymenu> {
   int _index = 0;
+  final ScrollController _controller = ScrollController();
+
   List<Contract> messages = [
     Contract(
       name: "Somsanit",
       time: DateTime.now(),
-      photo: "images/ChatContract/Nit.jpg",
+      photo: "assets/images/Profile.jpg",
     ),
     Contract(
       name: "Big",
       time: DateTime.now(),
-      photo: "images/ChatContract/Big.jpg",
-    ),
-    Contract(
-      name: "Palame",
-      time: DateTime.now(),
-      photo: "images/ChatContract/Palame.jpg",
+      photo: "assets/images/Profile.jpg",
     ),
     Contract(
       name: "Souk",
       time: DateTime.now(),
-      photo: "images/ChatContract/Souk.jpg",
+      photo: "assets/images/Profile.jpg",
     ),
     Contract(
       name: "Som",
       time: DateTime.now(),
-      photo: "images/ChatContract/Som.jpg",
+      photo: "assets/images/Profile.jpg",
     ),
     Contract(
       name: "Noy",
       time: DateTime.now(),
-      photo: "images/ChatContract/Noy.jpg",
+      photo: "assets/images/Profile.jpg",
     ),
     Contract(
       name: "Tadam",
       time: DateTime.now(),
-      photo: "images/ChatContract/tadam.jpg",
+      photo: "assets/images/Profile.jpg",
     ),
     Contract(
       name: "Pe",
       time: DateTime.now(),
-      photo: "images/ChatContract/Pe.jpg",
+      photo: "assets/images/Profile.jpg",
+    ),
+    Contract(
+      name: "May",
+      time: DateTime.now(),
+      photo: "assets/images/Profile.jpg",
+    ),
+    Contract(
+      name: "Noun",
+      time: DateTime.now(),
+      photo: "assets/images/Profile.jpg",
+    ),
+    Contract(
+      name: "Dalin",
+      time: DateTime.now(),
+      photo: "assets/images/Profile.jpg",
     ),
   ];
   int? hoveredCardIndex;
   double opacityValue = 0.2; // Initial opacity value
+  void initState() {
+    super.initState();
+
+    // ต้องใส่ใน method เช่น initState หรือ onTap
+    Future.delayed(Duration.zero, () {
+      _controller.animateTo(
+        3 * 60.0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // backgroundColor: Colors.black,
+        backgroundColor: const Color(0xFF084886),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pop(context); // Remove the unnecessary MaterialPageRoute
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.note, color: Colors.purple),
-            onPressed: () {},
-          ),
-        ],
-        title: const Text("Message"),
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.note, color: Colors.purple),
+        //     onPressed: () {},
+        //   ),
+        // ],
+        title: Center(
+          child: const Text("Message", style: TextStyle(color: Colors.white)),
+        ),
       ),
       // drawer: Drawer(),
       body: ListView.builder(
+        physics: const BouncingScrollPhysics(),
+        controller: _controller,
+
         padding: const EdgeInsets.all(0),
         itemCount: messages.length,
         itemBuilder: (context, index) {
@@ -138,7 +167,7 @@ class _DisplaymenuState extends State<Displaymenu> {
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color(0xFF084886),
+        backgroundColor: Colors.white,
         items: const [
           BottomNavigationBarItem(
             icon: Badge(
@@ -156,7 +185,7 @@ class _DisplaymenuState extends State<Displaymenu> {
           ),
         ],
         selectedFontSize: 16,
-        selectedItemColor: Colors.blue,
+        selectedItemColor: const Color(0xFF084886),
         unselectedItemColor: Colors.grey,
         currentIndex: _index,
         onTap: (index) {
@@ -176,4 +205,10 @@ class _DisplaymenuState extends State<Displaymenu> {
     );
   }
 }
+
+
+
+
+
+
 // Columບໍ່ສາມາດສະກໍເອົາຂໍ້ມູນມາສະແດງໄດ້

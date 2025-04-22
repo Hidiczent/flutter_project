@@ -96,10 +96,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         centerTitle: true,
         title: const Text(
           'Change Password',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),

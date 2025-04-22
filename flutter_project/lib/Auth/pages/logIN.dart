@@ -18,6 +18,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _obscurePassword = true;
 
   bool _isLoading = false;
 
@@ -48,9 +49,9 @@ class _LoginPageState extends State<LoginPage> {
         final name = data['name'] ?? 'No Name';
         final userEmail = data['email'] ?? 'No Email';
 
-        print("✅ Login successful. Token: $token");
-        print("👤 Name: $name");
-        print("📧 Email: $userEmail");
+        // print("✅ Login successful. Token: $token");
+        // print("👤 Name: $name");
+        // print("📧 Email: $userEmail");
 
         // ✅ Save to SharedPreferences
         final prefs = await SharedPreferences.getInstance();
@@ -64,13 +65,13 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(builder: (context) => const IntroPage()),
         );
       } else {
-        print("❌ Login failed: ${response.body}");
+        // print("❌ Login failed: ${response.body}");
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Login failed')));
       }
     } catch (e) {
-      print("❌ Error: $e");
+      // print("❌ Error: $e");
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Network error')));
@@ -106,6 +107,7 @@ class _LoginPageState extends State<LoginPage> {
               TextField(
                 controller: _emailController,
                 decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.email_outlined, color: Colors.grey),
                   hintText: 'Email',
                   filled: true,
                   fillColor: Colors.grey[100],
@@ -124,10 +126,26 @@ class _LoginPageState extends State<LoginPage> {
               // Password input
               TextField(
                 controller: _passwordController,
-                obscureText: true,
+                obscureText: _obscurePassword,
                 decoration: InputDecoration(
+                  prefixIcon: const Icon(
+                    Icons.lock_outline,
+                    color: Colors.grey,
+                  ),
                   hintText: 'Password',
-                  suffixIcon: const Icon(Icons.visibility_off),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: Colors.grey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
                   filled: true,
                   fillColor: Colors.grey[100],
                   contentPadding: const EdgeInsets.symmetric(
@@ -201,8 +219,8 @@ class _LoginPageState extends State<LoginPage> {
                                 'Continue',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w300,
                                 ),
                               ),
                     ),
@@ -254,7 +272,10 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             Image.asset(iconPath, width: 24),
             const SizedBox(width: 12),
-            Text(text),
+            Text(
+              text,
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
+            ),
           ],
         ),
       ),

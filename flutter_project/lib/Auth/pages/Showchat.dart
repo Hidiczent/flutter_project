@@ -36,9 +36,9 @@ class _ShowChatState extends State<ShowChat> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Chat"),
-        backgroundColor: Colors.black,
+        backgroundColor: const Color(0xFF084886),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pop(context); // Remove the unnecessary MaterialPageRoute
           },

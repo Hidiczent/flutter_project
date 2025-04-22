@@ -3,6 +3,7 @@ import 'package:flutter_project/Auth/pages/Display_message.dart';
 import 'package:flutter_project/Auth/pages/account_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'notification_page.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -124,22 +125,27 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 },
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  decoration: const BoxDecoration(
-                    color: Colors.amber,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'M',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                child: Stack(
+                  children: [
+                    const FaIcon(
+                      FontAwesomeIcons.solidCommentDots,
+                      color: Colors.amber,
+                      size: 25,
+                    ),
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 1),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ],
@@ -152,21 +158,53 @@ class _HomePageState extends State<HomePage> {
         children: [
           sectionTitle('Popular Province'),
           imageCard('Vientiane', 'assets/images/Default.jpg'),
-
           sectionTitle('Popular Activities'),
-          Row(
-            children: [
-              Expanded(
-                child: activityCard(
-                  'Cooking class',
-                  'assets/images/activity.jpg',
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                activityCard(
+                  "Collecting coffee and how to make .....",
+                  "assets/images/activity.jpg",
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: activityCard('Weaving', 'assets/images/activity.jpg'),
-              ),
-            ],
+                activityCard(
+                  "Collecting coffee and how to make......",
+                  "assets/images/activity.jpg",
+                ),
+                activityCard(
+                  "Collecting coffee and how to make......",
+                  "assets/images/activity.jpg",
+                ),
+                activityCard(
+                  "Collecting coffee and how to make......",
+                  "assets/images/activity.jpg",
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 20),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                activityCard(
+                  "Collecting coffee and how to make .....",
+                  "assets/images/Homeste.jpg",
+                ),
+                activityCard(
+                  "Collecting coffee and how to make......",
+                  "assets/images/Act4.JPG",
+                ),
+                activityCard(
+                  "Collecting coffee and how to make......",
+                  "assets/images/Act3.jpg",
+                ),
+                activityCard(
+                  "Collecting coffee and how to make......",
+                  "assets/images/activity.jpg",
+                ),
+              ],
+            ),
           ),
 
           sectionTitle('Popular Place in Laos'),
@@ -287,31 +325,66 @@ class _HomePageState extends State<HomePage> {
 
   Widget activityCard(String title, String imagePath) {
     return Container(
-      height: 180,
-      margin: const EdgeInsets.only(bottom: 16),
+      width: 180,
+      margin: const EdgeInsets.symmetric(horizontal: 7),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 5)),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: Image.asset(
               imagePath,
-              height: 100,
-              fit: BoxFit.cover,
+              height: 130,
               width: double.infinity,
+              fit: BoxFit.cover,
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8),
-            child: Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "South Pakxong district  Pakse province",
+                  style: TextStyle(fontSize: 13, color: Colors.black54),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 3),
+                Row(
+                  children: List.generate(5, (index) {
+                    return const Icon(
+                      Icons.star,
+                      color: Colors.amber,
+                      size: 16,
+                    );
+                  }),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  "500.000 KIP",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

@@ -20,6 +20,52 @@ class _AccountPageState extends State<AccountPage> {
     loadUserData(); // ✅ Load user data
   }
 
+  void confirmLogout() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("confirm"),
+          content: const Text("You do not wish to log out.?"),
+          actions: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+              ),
+              child: TextButton(
+                child: const Text(
+                  "Cancle",
+                  style: TextStyle(color: Colors.orange),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(); // ปิด dialog
+                },
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.red.shade400,
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+              ),
+
+              child: TextButton(
+                child: const Text(
+                  "Logout",
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(); // ปิด dialog ก่อน
+                  logout(); // เรียก logout จริง
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -31,7 +77,7 @@ class _AccountPageState extends State<AccountPage> {
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear(); // ✅ Clear token and user data
-
+    if (!mounted) return;
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const LoginPage()),
@@ -91,7 +137,6 @@ class _AccountPageState extends State<AccountPage> {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              Icon(Icons.email_outlined, size: 20),
                               SizedBox(width: 5),
                               Text(
                                 '$userEmail',
@@ -118,7 +163,10 @@ class _AccountPageState extends State<AccountPage> {
                 children: [
                   const SizedBox(height: 16),
                   ListTile(
-                    leading: const Icon(Icons.settings, color: Colors.black),
+                    leading: const Icon(
+                      Icons.person_2_sharp,
+                      color: Colors.black,
+                    ),
                     title: const Text('Manage Your Account'),
                     onTap: () {
                       Navigator.push(
@@ -154,7 +202,7 @@ class _AccountPageState extends State<AccountPage> {
                       'Logout',
                       style: TextStyle(color: Colors.red),
                     ),
-                    onTap: logout,
+                    onTap: confirmLogout,
                   ),
                 ],
               ),
