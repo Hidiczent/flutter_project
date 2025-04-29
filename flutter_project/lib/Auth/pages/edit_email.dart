@@ -31,7 +31,6 @@ class _EditEmailState extends State<EditEmail> {
 
     // ดึงจาก local (หรือเพิ่มให้เรียก API มา preload ก็ได้)
     _emailcontroller.text = prefs.getString('user_email') ?? '';
-    ;
   }
 
   Map<String, dynamic> _decodeToken(String token) {

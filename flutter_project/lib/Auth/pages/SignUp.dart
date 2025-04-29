@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/Auth/pages/Login.dart';
-
+import 'package:flutter_project/Auth/pages/VerifyOtpPage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../config.dart';
@@ -16,7 +15,7 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
+  bool isLoading = false;
   // bool _obscurePassword = true;
 
   @override
@@ -31,12 +30,12 @@ class _SignUpState extends State<SignUp> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset('assets/images/lao_epic_logo.png', height: 180),
+                const SizedBox(height: 30),
                 const Text(
                   'Sign up',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 24),
-
+                const SizedBox(height: 30),
                 buildInputBox("Name", Icons.person, _nameController),
                 const SizedBox(height: 16),
                 buildInputBox("Email", Icons.email, _emailController),
@@ -48,44 +47,50 @@ class _SignUpState extends State<SignUp> {
                 ),
                 const SizedBox(height: 24),
 
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      final success = await registerUser(
-                        _nameController.text.trim(),
-                        _emailController.text.trim(),
-                        _passwordController.text.trim(),
-                      );
+                isLoading
+                    ? const CircularProgressIndicator() // ✅ แสดงโหลด
+                    : SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          setState(() => isLoading = true);
+                          final success = await registerUser(
+                            _nameController.text.trim(),
+                            _emailController.text.trim(),
+                            _passwordController.text.trim(),
+                          );
+                          setState(() => isLoading = false);
 
-                      if (success) {
-                        // ✅ เปลี่ยนจาก LoginPage → HomePage
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginPage(),
+                          if (success) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => VerifyOtpPage(
+                                      email: _emailController.text.trim(),
+                                      action: 'register',
+                                    ),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("❌ Sign up failed")),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF084886),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("❌ Sign up failed")),
-                        );
-                      }
-                    },
-
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF084886),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'Create Account',
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        ),
                       ),
                     ),
-                    child: const Text(
-                      'Create Account',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -142,25 +147,23 @@ class _SignUpState extends State<SignUp> {
   }
 
   Future<bool> registerUser(String name, String email, String password) async {
-    final url = Uri.parse('${AppConfig.baseUrl}/users/register');
-
+    final url = Uri.parse('${AppConfig.baseUrl}/otp/send');
     try {
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'first_name': name,
           'email': email,
-          'password': password,
+          'action': 'register',
+          'metadata': {'first_name': name, 'password': password},
         }),
       );
-
       print("📥 Response status: ${response.statusCode}");
       print("📥 Response body: ${response.body}");
 
-      return response.statusCode == 200 || response.statusCode == 201;
+      return response.statusCode == 200;
     } catch (e) {
-      print("❌ Error connecting to backend: $e");
+      print("❌ Error sending OTP: $e");
       return false;
     }
   }

@@ -16,7 +16,6 @@ class _EditUsernamePageState extends State<EditUsernamePage> {
   final TextEditingController _lastnameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   bool _isSaving = false;
-
   String userId = '';
 
   @override
@@ -31,8 +30,8 @@ class _EditUsernamePageState extends State<EditUsernamePage> {
     final payload = _decodeToken(token);
     userId = payload['user_id'].toString();
 
-    // ดึงจาก local (หรือเพิ่มให้เรียก API มา preload ก็ได้)
     _usernameController.text = prefs.getString('user_name') ?? '';
+    // ในอนาคตถ้าต้องการ preload lastname/phone → preload เพิ่มได้ที่นี่
     _lastnameController.text = '';
     _phoneController.text = '';
   }
@@ -49,28 +48,41 @@ class _EditUsernamePageState extends State<EditUsernamePage> {
     setState(() => _isSaving = true);
 
     final url = Uri.parse('${AppConfig.baseUrl}/users/$userId/profile');
+    final phone = int.tryParse(_phoneController.text);
+
     final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'first_name': _usernameController.text,
         'lastname': _lastnameController.text,
-        'phone_number': int.tryParse(_phoneController.text),
+        'phone_number': phone,
         'photo': null,
       }),
     );
 
     setState(() => _isSaving = false);
 
+    if (!mounted) return;
+
     if (response.statusCode == 200) {
-      Navigator.pop(context); 
+      // ✅ บันทึกลง SharedPreferences เพื่อใช้แสดงในหน้าอื่น
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_name', _usernameController.text);
+      await prefs.setString('user_lastname', _lastnameController.text);
+      if (phone != null) {
+        await prefs.setString('user_phone', phone.toString());
+      }
+
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('✅ Profile updated')));
+
+      Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Failed to update profile')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('❌ Failed to update profile')),
+      );
     }
   }
 
@@ -94,7 +106,7 @@ class _EditUsernamePageState extends State<EditUsernamePage> {
             TextField(
               controller: _usernameController,
               decoration: InputDecoration(
-                hintText: 'Enter your username',
+                hintText: 'Enter your first name',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -104,7 +116,7 @@ class _EditUsernamePageState extends State<EditUsernamePage> {
             TextField(
               controller: _lastnameController,
               decoration: InputDecoration(
-                hintText: 'Enter your lastname',
+                hintText: 'Enter your last name',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -115,7 +127,7 @@ class _EditUsernamePageState extends State<EditUsernamePage> {
               controller: _phoneController,
               keyboardType: TextInputType.phone,
               decoration: InputDecoration(
-                hintText: 'Enter your Phone Number',
+                hintText: 'Enter your phone number',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -130,10 +142,10 @@ class _EditUsernamePageState extends State<EditUsernamePage> {
             ElevatedButton(
               onPressed: _isSaving ? null : _saveProfile,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF084886), 
-                minimumSize: const Size.fromHeight(50), 
+                backgroundColor: const Color(0xFF084886),
+                minimumSize: const Size.fromHeight(50),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12), 
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child:
@@ -141,10 +153,7 @@ class _EditUsernamePageState extends State<EditUsernamePage> {
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
                         "Save",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                        ), // ✅ เพิ่มขนาดตัวอักษร
+                        style: TextStyle(fontSize: 18, color: Colors.white),
                       ),
             ),
           ],

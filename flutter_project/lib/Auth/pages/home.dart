@@ -30,6 +30,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -193,7 +194,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 activityCard(
                   "Collecting coffee and how to make......",
-                  "assets/images/Act4.JPG",
+                  "assets/images/Act4.jpg",
                 ),
                 activityCard(
                   "Collecting coffee and how to make......",

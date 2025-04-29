@@ -4,7 +4,7 @@ import 'package:grouped_list/grouped_list.dart';
 import 'package:intl/intl.dart';
 
 class ShowChat extends StatefulWidget {
-  const ShowChat({Key? key}) : super(key: key);
+  const ShowChat({super.key});
 
   @override
   State<ShowChat> createState() => _ShowChatState();

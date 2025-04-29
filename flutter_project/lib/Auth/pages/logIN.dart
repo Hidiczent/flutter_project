@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/Auth/pages/ForgotPasswordPage.dart';
 
 import 'package:flutter_project/Auth/pages/SignUp.dart';
 import 'package:flutter_project/Auth/pages/start.dart';
@@ -46,38 +47,44 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final token = data['token'];
-        final name = data['name'] ?? 'No Name';
-        final userEmail = data['email'] ?? 'No Email';
 
-        // print("✅ Login successful. Token: $token");
-        // print("👤 Name: $name");
-        // print("📧 Email: $userEmail");
+        final decoded = _decodeToken(token);
+        final userId = decoded['user_id'] ?? 0;
+        final userEmail = decoded['email'] ?? '';
+        final userName = decoded['name'] ?? '';
 
-        // ✅ Save to SharedPreferences
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('jwt_token', token);
-        await prefs.setString('user_name', name);
         await prefs.setString('user_email', userEmail);
+        await prefs.setString('user_name', userName);
+        await prefs.setInt('user_id', userId);
 
-        // ✅ Navigate to HomePage or IntroPage
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const IntroPage()),
         );
       } else {
-        // print("❌ Login failed: ${response.body}");
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Login failed')));
       }
     } catch (e) {
-      // print("❌ Error: $e");
+      print('❌ Error: $e');
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Network error')));
     } finally {
       setState(() => _isLoading = false);
     }
+  }
+
+  Map<String, dynamic> _decodeToken(String token) {
+    final parts = token.split('.');
+    if (parts.length != 3) return {};
+    final payload = utf8.decode(
+      base64Url.decode(base64Url.normalize(parts[1])),
+    );
+    return json.decode(payload);
   }
 
   @override
@@ -89,12 +96,11 @@ class _LoginPageState extends State<LoginPage> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-              const SizedBox(height: 40),
               Center(
                 child: Image.asset(
                   'assets/images/lao_epic_logo.png',
-                  height: 200,
-                  width: 200,
+                  height: 250,
+                  width: 250,
                 ),
               ),
               const Text(
@@ -163,7 +169,14 @@ class _LoginPageState extends State<LoginPage> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ForgotPasswordPage(),
+                      ),
+                    );
+                  },
                   child: const Text(
                     'Forgot Password?',
                     style: TextStyle(color: Colors.grey),

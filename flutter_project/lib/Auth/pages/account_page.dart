@@ -139,7 +139,7 @@ class _AccountPageState extends State<AccountPage> {
                             children: [
                               SizedBox(width: 5),
                               Text(
-                                '$userEmail',
+                                userEmail,
                                 style: const TextStyle(color: Colors.white70),
                               ),
                             ],

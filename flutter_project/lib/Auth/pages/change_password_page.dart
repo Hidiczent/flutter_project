@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_project/Auth/pages/ForgotPasswordPage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../config.dart'; // import baseUrl
@@ -65,10 +66,16 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'old_password': oldPass, 'new_password': newPass}),
+      body: jsonEncode({
+        'old_password': oldPass,
+        'new_password': newPass,
+        'confirm_password': confirmPass,
+      }),
     );
 
     setState(() => _isSaving = false);
+    print("📥 Response status: ${response.statusCode}");
+    print("📥 Response body: ${response.body}");
 
     if (response.statusCode == 200) {
       Navigator.pop(context);
@@ -118,7 +125,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
           const SizedBox(height: 12),
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ForgotPasswordPage(),
+                ),
+              );
+            },
             child: const Text(
               'Forgot your password?',
               style: TextStyle(color: Colors.blue),

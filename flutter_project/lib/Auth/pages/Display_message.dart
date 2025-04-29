@@ -69,6 +69,7 @@ class _DisplaymenuState extends State<Displaymenu> {
   ];
   int? hoveredCardIndex;
   double opacityValue = 0.2; // Initial opacity value
+  @override
   void initState() {
     super.initState();
 

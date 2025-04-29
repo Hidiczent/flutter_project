@@ -1,3 +1,3 @@
 class AppConfig {
-  static const String baseUrl = 'http://172.20.10.2:5000';
+  static const String baseUrl = 'http://192.168.80.213:5000';
 }
