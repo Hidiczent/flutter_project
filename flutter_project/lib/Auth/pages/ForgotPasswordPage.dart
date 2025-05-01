@@ -18,15 +18,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Future<void> requestResetOtp() async {
     setState(() => _isLoading = true);
 
-    final url = Uri.parse('${AppConfig.baseUrl}/otp/send');
+    final url = Uri.parse('${AppConfig.baseUrl}/users/reset-password/request');
     try {
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': _emailController.text.trim(),
-          'action': 'reset_password',
-        }),
+        body: jsonEncode({'email': _emailController.text.trim()}),
       );
 
       setState(() => _isLoading = false);

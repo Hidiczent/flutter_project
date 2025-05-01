@@ -16,8 +16,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final TextEditingController _newPasswordController = TextEditingController();
 
   Future<void> resetPassword() async {
-    final url = Uri.parse('${AppConfig.baseUrl}/users/reset-password');
-
+    final url = Uri.parse('${AppConfig.baseUrl}/users/reset-password/confirm');
     try {
       final response = await http.post(
         url,

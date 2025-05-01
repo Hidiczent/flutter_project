@@ -36,7 +36,7 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
 
     // ✅ จัดการ endpoint ตาม action
     if (widget.action == 'register') {
-      apiEndpoint = '${AppConfig.baseUrl}/otp/confirm-register';
+      apiEndpoint = '${AppConfig.baseUrl}/users/verify';
     } else {
       apiEndpoint = '${AppConfig.baseUrl}/otp/verify';
     }
@@ -50,7 +50,7 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
 
       print("📥 Response status: ${response.statusCode}");
       print("📥 Response body: ${response.body}");
-      if (response.statusCode == 200) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         handleSuccess();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

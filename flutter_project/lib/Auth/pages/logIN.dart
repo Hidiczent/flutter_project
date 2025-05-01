@@ -37,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      final url = Uri.parse('${AppConfig.baseUrl}/login');
+      final url = Uri.parse('${AppConfig.baseUrl}/users/login');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},

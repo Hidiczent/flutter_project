@@ -46,6 +46,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     final newPass = _newPasswordController.text.trim();
     final confirmPass = _confirmPasswordController.text.trim();
 
+    if (userId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User ID not loaded yet. Try again.')),
+      );
+      return;
+    }
+
     if (oldPass.isEmpty || newPass.isEmpty || confirmPass.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all fields')),
@@ -63,33 +70,42 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     setState(() => _isSaving = true);
 
     final url = Uri.parse('${AppConfig.baseUrl}/users/$userId/password');
-    final response = await http.put(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'old_password': oldPass,
-        'new_password': newPass,
-        'confirm_password': confirmPass,
-      }),
-    );
 
-    setState(() => _isSaving = false);
-    print("📥 Response status: ${response.statusCode}");
-    print("📥 Response body: ${response.body}");
+    try {
+      final response = await http.put(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'old_password': oldPass,
+          'new_password': newPass,
+          'confirm_password': confirmPass,
+        }),
+      );
 
-    if (response.statusCode == 200) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ Password updated successfully')),
-      );
-    } else if (response.statusCode == 401) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('❌ Old password is incorrect')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('❌ Failed to update password')),
-      );
+      print("📥 Response status: ${response.statusCode}");
+      print("📥 Response body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('✅ Password updated successfully')),
+        );
+      } else if (response.statusCode == 401) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('❌ Old password is incorrect')),
+        );
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('❌ Failed: ${response.body}')));
+      }
+    } catch (e) {
+      print("❌ Error: $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('❌ Network error')));
+    } finally {
+      setState(() => _isSaving = false);
     }
   }
 

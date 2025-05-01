@@ -98,7 +98,6 @@ class _SignUpState extends State<SignUp> {
       ),
     );
   }
-
   Widget buildInputBox(
     String hint,
     IconData icon,
@@ -147,7 +146,7 @@ class _SignUpState extends State<SignUp> {
   }
 
   Future<bool> registerUser(String name, String email, String password) async {
-    final url = Uri.parse('${AppConfig.baseUrl}/otp/send');
+    final url = Uri.parse('${AppConfig.baseUrl}/users/register');
     try {
       final response = await http.post(
         url,
@@ -155,9 +154,16 @@ class _SignUpState extends State<SignUp> {
         body: jsonEncode({
           'email': email,
           'action': 'register',
-          'metadata': {'first_name': name, 'password': password},
+          'metadata': {
+            'first_name': name,
+            'lastname': 'Default', // ✅ ต้องใส่ (แม้จะ dummy)
+            'phone_number': '0000000000', // ✅ ต้องใส่
+            'password': password,
+            'role': 'user', // ✅ default เป็น user
+          },
         }),
       );
+
       print("📥 Response status: ${response.statusCode}");
       print("📥 Response body: ${response.body}");
 
