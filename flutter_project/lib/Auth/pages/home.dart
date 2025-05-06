@@ -4,6 +4,7 @@ import 'package:flutter_project/Auth/pages/account_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'notification_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_project/Auth/pages/detail_booking_packet_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -167,18 +168,22 @@ class _HomePageState extends State<HomePage> {
                 activityCard(
                   "Collecting coffee and how to make .....",
                   "assets/images/activity.jpg",
+                  context,
                 ),
                 activityCard(
                   "Collecting coffee and how to make......",
                   "assets/images/activity.jpg",
+                  context,
                 ),
                 activityCard(
                   "Collecting coffee and how to make......",
                   "assets/images/activity.jpg",
+                  context,
                 ),
                 activityCard(
                   "Collecting coffee and how to make......",
                   "assets/images/activity.jpg",
+                  context,
                 ),
               ],
             ),
@@ -191,18 +196,22 @@ class _HomePageState extends State<HomePage> {
                 activityCard(
                   "Collecting coffee and how to make .....",
                   "assets/images/Homeste.jpg",
+                  context,
                 ),
                 activityCard(
                   "Collecting coffee and how to make......",
                   "assets/images/Act4.jpg",
+                  context,
                 ),
                 activityCard(
                   "Collecting coffee and how to make......",
                   "assets/images/Act3.jpg",
+                  context,
                 ),
                 activityCard(
                   "Collecting coffee and how to make......",
                   "assets/images/activity.jpg",
+                  context,
                 ),
               ],
             ),
@@ -324,71 +333,89 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget activityCard(String title, String imagePath) {
-    return Container(
-      width: 180,
-      margin: const EdgeInsets.symmetric(horizontal: 7),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 5)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: Image.asset(
-              imagePath,
-              height: 130,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
+  //  click link to detail page
+  Widget activityCard(String title, String imagePath, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => const DetailBookingPacketPage(), // หรือหน้าอื่น
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "South Pakxong district  Pakse province",
-                  style: TextStyle(fontSize: 13, color: Colors.black54),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 3),
-                Row(
-                  children: List.generate(5, (index) {
-                    return const Icon(
-                      Icons.star,
-                      color: Colors.amber,
-                      size: 16,
-                    );
-                  }),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  "500.000 KIP",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
+        );
+      },
+      child: Container(
+        width: 180,
+        margin: const EdgeInsets.symmetric(horizontal: 7),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 6,
+              offset: Offset(0, 5),
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
+              child: Image.asset(
+                imagePath,
+                height: 130,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "South Pakxong district  Pakse province",
+                    style: TextStyle(fontSize: 13, color: Colors.black54),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 3),
+                  Row(
+                    children: List.generate(5, (index) {
+                      return const Icon(
+                        Icons.star,
+                        color: Colors.amber,
+                        size: 16,
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    "500.000 KIP",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
