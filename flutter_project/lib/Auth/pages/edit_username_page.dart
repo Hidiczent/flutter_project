@@ -90,6 +90,8 @@ class _EditUsernamePageState extends State<EditUsernamePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+
         backgroundColor: const Color(0xFF084886),
         title: const Center(
           child: Text(

@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_project/Auth/pages/change_password_page.dart';
-import 'package:flutter_project/Auth/pages/edit_email.dart';
+import 'package:flutter_project/Auth/pages/Change_password_page.dart';
+import 'package:flutter_project/Auth/pages/Edit_email.dart';
 import 'package:flutter_project/Auth/pages/edit_username_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -131,6 +131,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        
         title: const Text(
           'Edit Profile',
           style: TextStyle(color: Colors.white),

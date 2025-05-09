@@ -1,107 +1,186 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/Auth/pages/booking_detail_page.dart';
+import 'package:flutter_project/config.dart';
+import 'package:flutter_project/models/NotificationModel.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class NotificationPage extends StatelessWidget {
+import 'package:shared_preferences/shared_preferences.dart';
+
+class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
+
+  @override
+  State<NotificationPage> createState() => _NotificationPageState();
+}
+
+class _NotificationPageState extends State<NotificationPage> {
+  List<NotificationItem> notifications = [];
+  int unreadNotificationsCount =
+      0; // ตัวแปรเก็บจำนวน notification ที่ยังไม่ได้อ่าน
+
+  @override
+  void initState() {
+    super.initState();
+    fetchNotifications();
+  }
+
+  Future<void> fetchNotifications() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
+
+    // ตรวจสอบว่า token มีค่า
+    if (token == null) {
+      print("❌ No token found");
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('${AppConfig.baseUrl}/notification/user/notifications'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      setState(() {
+        notifications =
+            data.map((json) => NotificationItem.fromJson(json)).toList();
+        unreadNotificationsCount =
+            notifications
+                .where(
+                  (notification) => notification.statusNotification == 'new',
+                )
+                .length; // นับจำนวน notification ที่ยังไม่ได้อ่าน
+      });
+    } else {
+      print("❌ Failed to fetch notifications. Status: ${response.statusCode}");
+      print("Response body: ${response.body}");
+    }
+  }
+
+  // Method to navigate to BookingDetailPage
+  void navigateToBookingDetail(int orderId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => BookingDetailPage(
+              orderId: orderId,
+            ), // Pass orderId to the new page
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF084886),
+        title: const Text(
+          'Notification',
+          style: TextStyle(color: Colors.white),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
         centerTitle: true,
-        title: Stack(
-          alignment: Alignment.topCenter,
-          children: [
-            const Text(
-              'Notification',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+        leading: BackButton(color: Colors.white),
+        actions: [
+          // เพิ่มไอคอน notification พร้อมตัวเลข
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications, color: Colors.amber),
+                onPressed: () {
+                  // Do something when notification icon is tapped
+                },
               ),
-            ),
-            Positioned(
-              top: 4,
-              right: -40,
-              child: Container(
-                width: 6,
-                height: 6,
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ],
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        actions: const [
-          Icon(Icons.more_vert, color: Colors.black),
-          SizedBox(width: 12),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: List.generate(2, (index) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Icon
-                const CircleAvatar(
-                  backgroundColor: Colors.blue,
-                  radius: 24,
-                  child: Icon(Icons.cloud, color: Colors.white),
-                ),
-                const SizedBox(width: 12),
-
-                // Text
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(text: 'Today ban dong a '),
-                            TextSpan(
-                              text: 'storm is coming.',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
+              if (unreadNotificationsCount > 0)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '$unreadNotificationsCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
                       ),
-                      SizedBox(height: 4),
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(text: 'Chance  30% Of Rain '),
-                            TextSpan(
-                              text: '34°C',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-
-                const Icon(Icons.thunderstorm_outlined, color: Colors.blue),
-              ],
-            ),
-          );
-        }),
+            ],
+          ),
+        ],
       ),
+      body:
+          notifications.isEmpty
+              ? const Center(child: Text("No notifications yet."))
+              : ListView.builder(
+                itemCount: notifications.length,
+                padding: const EdgeInsets.all(16),
+                itemBuilder: (context, index) {
+                  final item = notifications[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundImage: NetworkImage(item.imageUrl),
+                        backgroundColor: Colors.grey[200],
+                      ),
+                      title: Text(
+                        "Your order for '${item.title}' has been ${item.statusNotification}",
+                      ),
+                      subtitle: Text(
+                        "Order ID: ${item.orderId}\nStatus: ${item.orderStatus}",
+                        style: TextStyle(
+                          color:
+                              item.orderStatus == 'confirmed'
+                                  ? Colors.green
+                                  : item.orderStatus == 'pending'
+                                  ? Colors.yellow
+                                  : item.orderStatus == 'cancelled'
+                                  ? Colors.red
+                                  : Colors
+                                      .grey, // default color if no status matches
+                        ),
+                      ),
+                      trailing:
+                          item.statusNotification == 'new'
+                              ? Icon(Icons.notifications, color: Colors.red)
+                              : Icon(
+                                Icons.notifications_active,
+                                color: Colors.green,
+                              ),
+
+                      onTap: () {
+                        // เปลี่ยนสถานะเป็น 'read'
+                        setState(() {
+                          item.statusNotification = 'read';
+                          // อัพเดตจำนวน notifications ที่ยังไม่ได้อ่าน
+                          unreadNotificationsCount =
+                              notifications
+                                  .where(
+                                    (notification) =>
+                                        notification.statusNotification ==
+                                        'new',
+                                  )
+                                  .length;
+                        });
+
+                        // Navigate to BookingDetailPage when tapped
+                        navigateToBookingDetail(item.orderId);
+                      },
+                    ),
+                  );
+                },
+              ),
     );
   }
 }

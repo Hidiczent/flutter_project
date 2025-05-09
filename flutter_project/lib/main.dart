@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/Auth/pages/booking.dart';
-import 'package:flutter_project/Auth/pages/home.dart';
 import 'package:flutter_project/AuthCheckPage.dart';
-import 'package:flutter_project/Auth/pages/tourbooking.dart'; 
 
 void main() => runApp(const MyApp());
 
@@ -11,8 +8,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: BookingFormPage(),
+    return MaterialApp(
+      theme: ThemeData(
+        appBarTheme: const AppBarTheme(
+          centerTitle: true,
+          iconTheme: IconThemeData(
+            color: Colors.white,
+          ), // ✅ ทำให้ปุ่ม back สีขาว
+          backgroundColor: Color(0xFF084886),
+          titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+        ),
+      ),
+
+      home: AuthCheckPage(),
       debugShowCheckedModeBanner: false,
     );
   }

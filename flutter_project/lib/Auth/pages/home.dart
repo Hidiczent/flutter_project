@@ -1,10 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_project/Auth/pages/Display_message.dart';
-import 'package:flutter_project/Auth/pages/account_page.dart';
+import 'package:flutter_project/Auth/pages/Account_page.dart';
+import 'package:flutter_project/config.dart';
+import 'package:flutter_project/models/package_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_project/Auth/pages/Historybook.dart';
 import 'notification_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:flutter_project/Auth/pages/detail_booking_packet_page.dart';
+import 'package:flutter_project/Auth/pages/Detail_booking_packet_page.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,10 +20,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<PackageModel> packageList = [];
+  String searchQuery = '';
+  List<PackageModel> filteredPackages = [];
+  int unreadNotificationsCount = 0;
+
   @override
   void initState() {
     super.initState();
-    checkToken(); // ✅ เรียกเมื่อตอนเข้า
+    checkToken();
+    fetchPackages(); // ✅ เพิ่ม
+    fetchUnreadNotificationsCount(); // ✅ เพิ่ม
+
+    // ✅ เรียกเมื่อตอนเข้า
   }
 
   void checkToken() async {
@@ -28,6 +43,96 @@ class _HomePageState extends State<HomePage> {
       // ✅ คุณสามารถ decode JWT หรือ fetch ข้อมูลผู้ใช้ที่นี่ได้
     } else {
       print("❌ No token found");
+    }
+  }
+
+  Future<void> fetchPackages() async {
+    final url = Uri.parse('${AppConfig.baseUrl}/packages/packages');
+    try {
+      final response = await http.get(url);
+      // print('📦 Raw response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final decoded = jsonDecode(response.body);
+
+        List data;
+        if (decoded is List) {
+          data = decoded;
+        } else if (decoded is Map && decoded['data'] is List) {
+          data = decoded['data'];
+        } else {
+          throw Exception("Unexpected response format: ${decoded.runtimeType}");
+        }
+
+        final List<PackageModel> loaded =
+            data.map((item) => PackageModel.fromJson(item)).toList();
+
+        setState(() {
+          packageList = loaded;
+          filteredPackages = List.from(packageList);
+        });
+      } else {
+        print('❌ Failed to load packages: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Error: $e');
+    }
+  }
+
+  Future<void> fetchUnreadNotificationsCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
+
+    if (token == null) {
+      print('❌ No token found');
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('${AppConfig.baseUrl}/notification/user/notifications'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      setState(() {
+        unreadNotificationsCount =
+            data
+                .where(
+                  (notification) =>
+                      notification['status_notification'] == 'new',
+                )
+                .length;
+      });
+    } else {
+      print("❌ Failed to fetch notifications. Status: ${response.statusCode}");
+    }
+  }
+
+  Future<void> markNotificationAsRead(int notificationId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
+
+    if (token == null) {
+      print('❌ No token found');
+      return;
+    }
+
+    final response = await http.put(
+      Uri.parse('${AppConfig.baseUrl}/notification/update/$notificationId'),
+      headers: {'Authorization': 'Bearer $token'},
+      body: jsonEncode({
+        'status_notification': 'read', // เปลี่ยนสถานะเป็น "read"
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('✅ Notification marked as read');
+      // ถ้าต้องการสามารถเรียกข้อมูลการแจ้งเตือนใหม่เพื่อนำไปแสดงผล
+    } else {
+      print(
+        "❌ Failed to update notification status. Status: ${response.statusCode}",
+      );
     }
   }
 
@@ -47,21 +152,44 @@ class _HomePageState extends State<HomePage> {
               // Search Box
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   height: 45,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(24),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.search, color: Colors.grey),
-                      SizedBox(width: 8),
-                      Text('Search', style: TextStyle(color: Colors.grey)),
+                      const Icon(Icons.search, color: Colors.grey),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        // ✅ ครอบ TextField ด้วย Expanded
+                        child: TextField(
+                          onChanged: (val) {
+                            setState(() {
+                              searchQuery = val.toLowerCase();
+                              filteredPackages =
+                                  packageList
+                                      .where(
+                                        (pkg) => pkg.title
+                                            .toLowerCase()
+                                            .contains(searchQuery),
+                                      )
+                                      .toList();
+                            });
+                          },
+                          decoration: const InputDecoration(
+                            hintText: 'Search package...',
+                            border: InputBorder.none,
+                            isDense: true, // ✅ ช่วยให้ช่องเล็กลง
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
+
               const SizedBox(width: 12),
 
               // Notification Icon with red dot
@@ -83,34 +211,34 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.amber,
                           size: 30,
                         ),
-                        Positioned(
-                          right: 0,
-                          top: 0,
-                          child: Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 1),
+                        if (unreadNotificationsCount > 0)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              width: 18,
+                              height: 18,
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '$unreadNotificationsCount',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
                       ],
-                    ),
-                  ),
-
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 1),
-                      ),
                     ),
                   ),
                 ],
@@ -164,30 +292,13 @@ class _HomePageState extends State<HomePage> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: [
-                activityCard(
-                  "Collecting coffee and how to make .....",
-                  "assets/images/activity.jpg",
-                  context,
-                ),
-                activityCard(
-                  "Collecting coffee and how to make......",
-                  "assets/images/activity.jpg",
-                  context,
-                ),
-                activityCard(
-                  "Collecting coffee and how to make......",
-                  "assets/images/activity.jpg",
-                  context,
-                ),
-                activityCard(
-                  "Collecting coffee and how to make......",
-                  "assets/images/activity.jpg",
-                  context,
-                ),
-              ],
+              children:
+                  filteredPackages.map((pkg) {
+                    return activityCardFromApi(pkg, context);
+                  }).toList(),
             ),
           ),
+
           SizedBox(height: 20),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -271,7 +382,6 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed, // ✅ ทำให้แสดงครบ 5 ไอคอน
         selectedItemColor: Color(0xFF084886), // ✅ ถูกต้อง
-
         unselectedItemColor: Colors.grey,
         currentIndex: 0, // หรือสร้างตัวแปรใน StatefulWidget เพื่อเปลี่ยนหน้า
         onTap: (index) {
@@ -279,6 +389,14 @@ class _HomePageState extends State<HomePage> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const AccountPage()),
+            );
+          }
+          if (index == 3) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const BookingHistoryPage(),
+              ),
             );
           }
           // ใส่ logic ถ้าคุณต้องการเปลี่ยนหน้า
@@ -337,13 +455,12 @@ class _HomePageState extends State<HomePage> {
   Widget activityCard(String title, String imagePath, BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder:
-                (context) => const DetailBookingPacketPage(), // หรือหน้าอื่น
-          ),
-        );
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => DetailBookingPacketPage(packageId: pkg.id),
+        //   ),
+        // );
       },
       child: Container(
         width: 180,
@@ -480,4 +597,88 @@ class ActionItem extends StatelessWidget {
       ],
     );
   }
+}
+
+Widget activityCardFromApi(PackageModel pkg, BuildContext context) {
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DetailBookingPacketPage(packageId: pkg.id),
+        ),
+      );
+    },
+    child: Container(
+      width: 180,
+      margin: const EdgeInsets.symmetric(horizontal: 7),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 5)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            child: Image.network(
+              pkg.mainImageUrl,
+              height: 130,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder:
+                  (context, error, stackTrace) => Image.asset(
+                    'assets/images/default.jpg',
+                    fit: BoxFit.cover,
+                  ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  pkg.title,
+
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  pkg.about,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 11),
+                ),
+                Row(
+                  children: List.generate(5, (index) {
+                    return const Icon(
+                      Icons.star,
+                      color: Colors.amber,
+                      size: 16,
+                    );
+                  }),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "${pkg.priceInUsd} USD",
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }

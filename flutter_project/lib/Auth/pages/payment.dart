@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/Auth/pages/historybook.dart'; 
-import 'package:flutter_project/Auth/pages/booking_confirm.dart';
+import 'package:flutter_project/Auth/pages/Historybook.dart';
 
 class PaymentPage extends StatelessWidget {
   const PaymentPage({super.key});
@@ -50,21 +49,33 @@ class PaymentPage extends StatelessWidget {
                     '₭ 1.399.000 KIP',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  const Divider(height: 30, thickness: 1, indent: 40, endIndent: 40, color: Colors.black54),
+                  const Divider(
+                    height: 30,
+                    thickness: 1,
+                    indent: 40,
+                    endIndent: 40,
+                    color: Colors.black54,
+                  ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFE98A15),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 10,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                     onPressed: () {
- Navigator.push(
-  context,
-  MaterialPageRoute(builder: (context) => const BookingConfirmedPage()),
-);
-
-},
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const BookingHistoryPage(),
+                        ),
+                      );
+                    },
 
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
@@ -86,7 +97,7 @@ class PaymentPage extends StatelessWidget {
                           color: Colors.grey.withOpacity(0.3),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
-                        )
+                        ),
                       ],
                     ),
                     padding: const EdgeInsets.all(14),
@@ -120,12 +131,17 @@ class PaymentPage extends StatelessWidget {
                 ),
               ),
               onPressed: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const BookingHistoryPage()),
-  );
-},
-              child: const Text('Confirm', style: TextStyle(fontSize: 16, color: Colors.white)),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const BookingHistoryPage(),
+                  ),
+                );
+              },
+              child: const Text(
+                'Confirm',
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
             ),
           ),
         ],

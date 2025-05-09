@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/Auth/pages/account_page.dart';
+import 'package:flutter_project/Auth/pages/Account_page.dart';
+import 'package:flutter_project/Auth/pages/Booking.dart';
+import 'package:flutter_project/Auth/pages/Home.dart';
+import 'package:flutter_project/models/package_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'notification_page.dart';
-import 'detail_booking_packet_page.dart';
-import 'home.dart';
 
-class DetailBookingAboutPage extends StatefulWidget {
-  const DetailBookingAboutPage({super.key});
+class AboutTab extends StatefulWidget {
+  final PackageModel package;
+  const AboutTab({super.key, required this.package});
 
   @override
-  State<DetailBookingAboutPage> createState() => _DetailBookingAboutPageState();
+  State<AboutTab> createState() => _AboutTabState();
 }
 
-class _DetailBookingAboutPageState extends State<DetailBookingAboutPage> {
+class _AboutTabState extends State<AboutTab> {
   bool isFavorited = false;
+
   @override
   void initState() {
     super.initState();
-    checkToken();
     loadFavoriteStatus();
   }
 
@@ -28,143 +29,33 @@ class _DetailBookingAboutPageState extends State<DetailBookingAboutPage> {
     });
   }
 
-  void checkToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('jwt_token');
-    if (token != null) {
-      print("🔐 Token: $token");
-      // ✅ คุณสามารถ decode JWT หรือ fetch ข้อมูลผู้ใช้ที่นี่ได้
-    } else {
-      print("❌ No token found");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       //
       backgroundColor: Colors.grey[100],
       body: ListView(
+        padding: EdgeInsets.zero,
         children: [
-          // Banner Image
-          Stack(
-            children: [
-              Image.asset(
-                'assets/images/activity.jpg',
-                height: 250,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        child: Icon(Icons.arrow_back, color: Colors.white),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const HomePage(),
-                            ),
-                          );
-                        }, // 👈 ย้อนกลับไปหน้าก่อน
-                        // child: const CircleAvatar(
-                        //   child: Icon(Icons.arrow_back, color: Colors.black),
-                        // ),
-                      ),
-
-                      // ✅ Favorite toggle + share + profile
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              isFavorited
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                              color: Colors.white,
-                            ),
-                            onPressed: () async {
-                              setState(() {
-                                isFavorited = !isFavorited;
-                              });
-
-                              final prefs =
-                                  await SharedPreferences.getInstance();
-                              prefs.setBool('isFavorited', isFavorited);
-                            },
-                          ),
-                          const SizedBox(width: 12),
-                          const Icon(Icons.share, color: Colors.white),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          // Tab bar
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                const Text(
-                  "About",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const DetailBookingPacketPage(),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    "Packet",
-                    style: TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                ),
-                const Text(
-                  " Activity",
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
-              ],
-            ),
-          ),
-
           // Title
           Container(
             padding: const EdgeInsets.all(16),
-            constraints: const BoxConstraints(
-              maxWidth: 600,
-            ), // 🔹 Limit width if needed
+            constraints: const BoxConstraints(maxWidth: 600), // ✅ สำคัญ
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  "Visit to Vangvieng Activity ",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  "${widget.package.title}",
+                  style: const TextStyle(fontSize: 16),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Text(
-                  "Experience a fun and challenging trip that no one can beat this time, along with a tour of Laos' historical caves that are unknown to many and vast lakes, as well as living with local people who are ready to share new vocabulary with all of us Beyond the borders of Tokyo, there is an abundance of enchanting scenes to enjoy and cultural treasures to discover. One of this tour's highlights is found in the coastal town of Kawazu, known across Japan for the Kawazu-zakura – mainland Japan's earliest blooming cherry trees. Every year, the town holds the Kawazu Cherry Blossom Festival to celebrate the arrival of the bright pink blooms, with annual activities and cherry-flavored festival food. While in the area, we'll stop by Nanadaru Falls – the seven poetic waterfalls of the Izu Peninsula Geopark. We will venture into the breathtaking region around Mount Fuji for a ride on the Kachi Ropeway and enchanting views of the mountains and valleys below, then go to admire the colorful silk-dyeing techniques of Itchiku Kubota at a museum near Lake Kawaguchi.",
-                  style: TextStyle(color: Colors.grey),
+                  "${widget.package.about}",
+                  style: const TextStyle(color: Colors.grey),
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text("Read More", style: TextStyle(color: Colors.orange)),
+                const Text("Read More", style: TextStyle(color: Colors.orange)),
               ],
             ),
           ),
@@ -178,18 +69,20 @@ class _DetailBookingAboutPageState extends State<DetailBookingAboutPage> {
           ),
           // Tour information
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.fromLTRB(40, 0, 40, 0),
             child: ListView(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
-              children: const [
+              children: [
                 SectionTitle("About Trip"),
-                BulletText("Limit : 5 people"),
-                BulletText("Start trip 1: 15 July - 22 July 2024"),
-                BulletText("Start trip 2: 25 August - 1 September 2024"),
-                BulletText(
-                  "Location: Xaisomboun Province, Xao district, Naxaisavang village",
-                ),
+                ...widget.package.tourInfo.map((t) => BulletText(t)).toList(),
+
+                // BulletText("Limit : 5 people"),
+                // BulletText("Start trip 1: 15 July - 22 July 2024"),
+                // BulletText("Start trip 2: 25 August - 1 September 2024"),
+                // BulletText(
+                //   "Location: Xaisomboun Province, Xao district, Naxaisavang village",
+                // ),
                 // line
                 Divider(
                   color: Colors.grey, // You can customize the color
@@ -215,13 +108,16 @@ class _DetailBookingAboutPageState extends State<DetailBookingAboutPage> {
                   endIndent: 20, // End padding
                 ),
                 SectionTitle("What To Bring"),
+                // ...widget.package.bring
+                //     .map((item) => BulletText(item))
+                //     .toList(),
                 BulletText("A hat"),
                 BulletText("Sunscreen"),
                 BulletText("Mosquito repellent"),
                 BulletText("Pocket money"),
                 BulletText("Hiking shoes"),
                 BulletText("Windproof clothing"),
-                // line
+
                 Divider(
                   color: Colors.grey, // You can customize the color
                   thickness: 1, // Line thickness
@@ -298,8 +194,8 @@ class _DetailBookingAboutPageState extends State<DetailBookingAboutPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  "US\$ 10.85",
+                Text(
+                  " ${widget.package.priceInUsd} USD",
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -317,7 +213,16 @@ class _DetailBookingAboutPageState extends State<DetailBookingAboutPage> {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) =>
+                                BookingFormPage(packageId: widget.package.id),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF084886),
                     minimumSize: Size(double.infinity, 48),
@@ -392,6 +297,12 @@ class _DetailBookingAboutPageState extends State<DetailBookingAboutPage> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const AccountPage()),
+            );
+          }
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
             );
           }
           // ใส่ logic ถ้าคุณต้องการเปลี่ยนหน้า
