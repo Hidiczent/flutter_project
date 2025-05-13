@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/Auth/pages/Historybook.dart';
+import 'package:flutter_project/Screens/BookingPages/historybook.dart';
 
 class PaymentPage extends StatelessWidget {
   const PaymentPage({super.key});

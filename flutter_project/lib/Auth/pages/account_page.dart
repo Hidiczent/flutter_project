@@ -99,16 +99,7 @@ class _AccountPageState extends State<AccountPage> {
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
-              Positioned(
-                top: 40,
-                left: 16,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
+
               Container(
                 margin: EdgeInsets.only(top: 110, left: 20),
                 child: Positioned(

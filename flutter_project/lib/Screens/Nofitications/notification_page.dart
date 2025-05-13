@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/Auth/pages/booking_detail_page.dart';
+import 'package:flutter_project/Screens/BookingPages/booking_detail_page.dart';
 import 'package:flutter_project/config.dart';
 import 'package:flutter_project/models/NotificationModel.dart';
 import 'package:http/http.dart' as http;

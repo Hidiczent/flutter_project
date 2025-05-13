@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-import '../../../config.dart'; // ✅ import config
+import '../../../../config.dart'; // ✅ import config
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -51,7 +51,8 @@ class _LoginPageState extends State<LoginPage> {
         final decoded = _decodeToken(token);
         final userId = decoded['user_id'] ?? 0;
         final userEmail = decoded['email'] ?? '';
-        final userName = decoded['name'] ?? '';
+        final userName = decoded['first_name'] ?? '';
+        print('🪪 Decoded JWT payload: $decoded');
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('jwt_token', token);

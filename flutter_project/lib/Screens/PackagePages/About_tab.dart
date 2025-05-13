@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/Auth/pages/Account_page.dart';
-import 'package:flutter_project/Auth/pages/Booking.dart';
-import 'package:flutter_project/Auth/pages/Home.dart';
+
+import 'package:flutter_project/Screens/BookingPages/booking.dart';
 import 'package:flutter_project/models/package_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -286,39 +285,6 @@ class _AboutTabState extends State<AboutTab> {
         ],
       ),
 
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed, // ✅ ทำให้แสดงครบ 5 ไอคอน
-        selectedItemColor: Color(0xFF084886), // ✅ ถูกต้อง
-
-        unselectedItemColor: Colors.grey,
-        currentIndex: 0, // หรือสร้างตัวแปรใน StatefulWidget เพื่อเปลี่ยนหน้า
-        onTap: (index) {
-          if (index == 4) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const AccountPage()),
-            );
-          }
-          if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const HomePage()),
-            );
-          }
-          // ใส่ logic ถ้าคุณต้องการเปลี่ยนหน้า
-          //footer
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.feed), label: 'Feed'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_border),
-            label: 'Favorite',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.card_travel), label: 'Trip'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
-        ],
-      ),
     );
   }
 }

@@ -240,132 +240,135 @@ class _BookingFormPageState extends State<BookingFormPage> {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "We would like information about you to contact and to notify you of events and to confirm bookings.",
-                style: TextStyle(fontSize: 13),
-              ),
-              const SizedBox(height: 12),
-              sectionHeader("Write your information"),
-              textField("First Name", nameController),
-              textField("Last Name", surnameController),
-              textField("Phone Number", phoneController),
-              textField("Email", emailController),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: InkWell(
-                  onTap: () async {
-                    final pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(Duration(days: 365)),
-                    );
-
-                    if (pickedDate != null) {
-                      bookingDateController.text = DateFormat(
-                        'dd/MM/yyyy',
-                      ).format(pickedDate);
-                    }
-                  },
-                  child: IgnorePointer(
-                    child: TextFormField(
-                      controller: bookingDateController,
-                      decoration: const InputDecoration(
-                        labelText: "Date for Booking (dd/MM/yyyy)",
-                        border: OutlineInputBorder(),
-                      ),
-                      validator:
-                          (value) =>
-                              value == null || value.isEmpty
-                                  ? 'Required'
-                                  : null,
-                    ),
-                  ),
+      body: Container(
+        color: Colors.white,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "We would like information about you to contact and to notify you of events and to confirm bookings.",
+                  style: TextStyle(fontSize: 13),
                 ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: InkWell(
-                  onTap: () async {
-                    final pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime(2000),
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime.now(),
-                    );
-
-                    if (pickedDate != null) {
-                      birthController.text = DateFormat(
-                        'dd/MM/yyyy',
-                      ).format(pickedDate);
-                    }
-                  },
-                  child: IgnorePointer(
-                    child: TextFormField(
-                      controller: birthController,
-                      decoration: const InputDecoration(
-                        labelText: "Birth (dd/MM/yyyy)",
-                        border: OutlineInputBorder(),
-                      ),
-                      validator:
-                          (value) =>
-                              value == null || value.isEmpty
-                                  ? 'Required'
-                                  : null,
-                    ),
-                  ),
-                ),
-              ),
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: "Nationality"),
-                value: selectedNationalityId,
-                items:
-                    nationalities.map((item) {
-                      return DropdownMenuItem<String>(
-                        value: item['ID_Nationality'].toString(), // ✅ ตรง key
-                        child: Text(item['name']),
+                const SizedBox(height: 12),
+                sectionHeader("Write your information"),
+                textField("First Name", nameController),
+                textField("Last Name", surnameController),
+                textField("Phone Number", phoneController),
+                textField("Email", emailController),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: InkWell(
+                    onTap: () async {
+                      final pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime.now().add(Duration(days: 365)),
                       );
-                    }).toList(),
-                onChanged: (val) {
-                  print("Selected: $val"); // ✅ Debug
-                  setState(() => selectedNationalityId = val);
-                },
-                validator: (val) => val == null ? 'Required' : null,
-              ),
 
-              textField("Passport Number", passportController),
-              textField("Note (optional)", noteController),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: const Color(0xFF084886),
-                ),
-                onPressed:
-                    isSubmitting
-                        ? null
-                        : () {
-                          if (_formKey.currentState!.validate()) {
-                            submitBooking();
-                          }
-                        },
-                child:
-                    isSubmitting
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                          "Next",
-                          style: TextStyle(color: Colors.white),
+                      if (pickedDate != null) {
+                        bookingDateController.text = DateFormat(
+                          'dd/MM/yyyy',
+                        ).format(pickedDate);
+                      }
+                    },
+                    child: IgnorePointer(
+                      child: TextFormField(
+                        controller: bookingDateController,
+                        decoration: const InputDecoration(
+                          labelText: "Date for Booking (dd/MM/yyyy)",
+                          border: OutlineInputBorder(),
                         ),
-              ),
-            ],
+                        validator:
+                            (value) =>
+                                value == null || value.isEmpty
+                                    ? 'Required'
+                                    : null,
+                      ),
+                    ),
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: InkWell(
+                    onTap: () async {
+                      final pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime(2000),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime.now(),
+                      );
+
+                      if (pickedDate != null) {
+                        birthController.text = DateFormat(
+                          'dd/MM/yyyy',
+                        ).format(pickedDate);
+                      }
+                    },
+                    child: IgnorePointer(
+                      child: TextFormField(
+                        controller: birthController,
+                        decoration: const InputDecoration(
+                          labelText: "Birth (dd/MM/yyyy)",
+                          border: OutlineInputBorder(),
+                        ),
+                        validator:
+                            (value) =>
+                                value == null || value.isEmpty
+                                    ? 'Required'
+                                    : null,
+                      ),
+                    ),
+                  ),
+                ),
+                DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(labelText: "Nationality"),
+                  value: selectedNationalityId,
+                  items:
+                      nationalities.map((item) {
+                        return DropdownMenuItem<String>(
+                          value: item['ID_Nationality'].toString(), // ✅ ตรง key
+                          child: Text(item['name']),
+                        );
+                      }).toList(),
+                  onChanged: (val) {
+                    print("Selected: $val"); // ✅ Debug
+                    setState(() => selectedNationalityId = val);
+                  },
+                  validator: (val) => val == null ? 'Required' : null,
+                ),
+
+                textField("Passport Number", passportController),
+                textField("Note (optional)", noteController),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    backgroundColor: const Color(0xFF084886),
+                  ),
+                  onPressed:
+                      isSubmitting
+                          ? null
+                          : () {
+                            if (_formKey.currentState!.validate()) {
+                              submitBooking();
+                            }
+                          },
+                  child:
+                      isSubmitting
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                            "Next",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

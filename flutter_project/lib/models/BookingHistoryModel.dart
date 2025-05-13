@@ -23,7 +23,7 @@ class BookingHistoryModel {
     return BookingHistoryModel(
       orderId: json['order_id'],
       packageTitle:
-          json['package_title'] ?? 'No Title', // ต้องใช้ package_title
+          json['package_title'] ?? 'No Title',
       location: json['location'] ?? 'Unknown',
       price: double.tryParse(json['price_in_usd'].toString()) ?? 0.0,
       dateRange: json['order_date'] ?? '',

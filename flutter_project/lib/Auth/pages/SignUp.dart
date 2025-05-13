@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project/Auth/pages/VerifyOtpPage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../config.dart';
+import '../../../config.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});

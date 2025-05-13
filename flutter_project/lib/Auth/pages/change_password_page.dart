@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project/Auth/pages/ForgotPasswordPage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../config.dart'; // import baseUrl
+import '../../../../config.dart'; // import baseUrl
 
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});

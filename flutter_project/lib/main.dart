@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project/AuthCheckPage.dart';
+import 'package:flutter_project/provider/Package_Detail_Provider.dart';
+import 'package:flutter_project/provider/bottom_nav_provider.dart';
+import 'package:flutter_project/provider/favorite_provider.dart';
+import 'package:flutter_project/provider/package_provider.dart';
+import 'package:provider/provider.dart';
 
-void main() => runApp(const MyApp());
+void main() => runApp(
+  MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => BottomNavProvider()),
+      ChangeNotifierProvider(create: (_) => FavoriteProvider()),
+      ChangeNotifierProvider(create: (_) => PackageProvider()), 
+      ChangeNotifierProvider(create: (_) => PackageDetailProvider()),
+    ],
+    child: const MyApp(),
+  ),
+);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

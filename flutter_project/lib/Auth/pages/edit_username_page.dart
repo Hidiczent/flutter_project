@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../config.dart';
+import '../../../../config.dart';
 
 class EditUsernamePage extends StatefulWidget {
   const EditUsernamePage({super.key});
@@ -47,12 +47,17 @@ class _EditUsernamePageState extends State<EditUsernamePage> {
   Future<void> _saveProfile() async {
     setState(() => _isSaving = true);
 
-    final url = Uri.parse('${AppConfig.baseUrl}/users/$userId/profile');
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token'); // ✅ ย้ายมาบนสุดตรงนี้เลย
+    final url = Uri.parse('${AppConfig.baseUrl}/users/profile');
     final phone = int.tryParse(_phoneController.text);
 
     final response = await http.put(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token', // ✅ ถูกต้องแล้วตอนนี้
+      },
       body: jsonEncode({
         'first_name': _usernameController.text,
         'lastname': _lastnameController.text,
@@ -66,8 +71,7 @@ class _EditUsernamePageState extends State<EditUsernamePage> {
     if (!mounted) return;
 
     if (response.statusCode == 200) {
-      // ✅ บันทึกลง SharedPreferences เพื่อใช้แสดงในหน้าอื่น
-      final prefs = await SharedPreferences.getInstance();
+      // ✅ อัปเดต SharedPreferences
       await prefs.setString('user_name', _usernameController.text);
       await prefs.setString('user_lastname', _lastnameController.text);
       if (phone != null) {

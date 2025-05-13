@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/Auth/pages/home.dart';
+import 'package:flutter_project/Screens/HomePage/HomePage.dart';
 
 class IntroPage extends StatelessWidget {
   const IntroPage({super.key});
@@ -49,7 +49,6 @@ class IntroPage extends StatelessWidget {
                       context,
                       MaterialPageRoute(builder: (context) => const HomePage()),
                     );
-                    // TODO: navigate to SignInPage or LoginPage
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF084886),

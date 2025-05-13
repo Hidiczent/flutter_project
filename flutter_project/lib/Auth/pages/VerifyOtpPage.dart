@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_project/Auth/pages/LogIN.dart';
 import 'package:flutter_project/Auth/pages/Reset_passwor.dart';
 import 'package:flutter_project/config.dart';
 import 'package:http/http.dart' as http;
-import 'login.dart';
 
 class VerifyOtpPage extends StatefulWidget {
   final String email;

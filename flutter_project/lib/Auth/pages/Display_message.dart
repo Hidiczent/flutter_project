@@ -12,7 +12,6 @@ class Displaymenu extends StatefulWidget {
 }
 
 class _DisplaymenuState extends State<Displaymenu> {
-  int _index = 0;
   final ScrollController _controller = ScrollController();
 
   List<Contract> messages = [
@@ -87,6 +86,7 @@ class _DisplaymenuState extends State<Displaymenu> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: const Color(0xFF084886),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -100,8 +100,9 @@ class _DisplaymenuState extends State<Displaymenu> {
         //     onPressed: () {},
         //   ),
         // ],
-        title: Center(
-          child: const Text("Message", style: TextStyle(color: Colors.white)),
+        title: const Text(
+          "Message",
+          style: TextStyle(fontSize: 16, color: Colors.white),
         ),
       ),
       // drawer: Drawer(),
@@ -167,42 +168,42 @@ class _DisplaymenuState extends State<Displaymenu> {
           );
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Badge(
-              label: Text("12", style: TextStyle(color: Colors.white)),
-              child: Icon(Icons.chat_bubble),
-            ),
-            label: "Messages",
-          ),
-          BottomNavigationBarItem(
-            icon: Badge(
-              label: Text("9", style: TextStyle(color: Colors.white)),
-              child: Icon(Icons.call),
-            ),
-            label: "Call",
-          ),
-        ],
-        selectedFontSize: 16,
-        selectedItemColor: const Color(0xFF084886),
-        unselectedItemColor: Colors.grey,
-        currentIndex: _index,
-        onTap: (index) {
-          setState(() {
-            _index = index;
-            if (index == 0) {
-              Navigator.push(
-                context,
-                (MaterialPageRoute(builder: (context) => const Displaymenu())),
-              );
+      // bottomNavigationBar: BottomNavigationBar(
+      //   backgroundColor: Colors.white,
+      //   items: const [
+      //     BottomNavigationBarItem(
+      //       icon: Badge(
+      //         label: Text("12", style: TextStyle(color: Colors.white)),
+      //         child: Icon(Icons.chat_bubble),
+      //       ),
+      //       label: "Messages",
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Badge(
+      //         label: Text("9", style: TextStyle(color: Colors.white)),
+      //         child: Icon(Icons.call),
+      //       ),
+      //       label: "Call",
+      //     ),
+      //   ],
+      //   selectedFontSize: 16,
+      //   selectedItemColor: const Color(0xFF084886),
+      //   unselectedItemColor: Colors.grey,
+      //   currentIndex: _index,
+      //   onTap: (index) {
+      //     setState(() {
+      //       _index = index;
+      //       if (index == 0) {
+      //         Navigator.push(
+      //           context,
+      //           (MaterialPageRoute(builder: (context) => const Displaymenu())),
+      //         );
 
-              print("Messages");
-            } else if (index == 1) {}
-          });
-        },
-      ),
+      //         print("Messages");
+      //       } else if (index == 1) {}
+      //     });
+      //   },
+      // ),
     );
   }
 }
