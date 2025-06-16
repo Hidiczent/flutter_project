@@ -15,7 +15,7 @@ class PackageProvider with ChangeNotifier {
     fetchPackages(); // Call provider when the app starts
   }
 
-// Function to fetch packages
+  // Function to fetch packages
   // This function fetches the list of packages from the API
   Future<void> fetchPackages() async {
     final url = Uri.parse('${AppConfig.baseUrl}/packages/packages');

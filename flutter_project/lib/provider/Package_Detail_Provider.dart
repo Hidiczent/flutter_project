@@ -12,17 +12,15 @@ class PackageDetailProvider with ChangeNotifier {
 
   // packageModel is a class that represents the package details
   // It contains properties like packageId, packageName, packageDescription, etc.
+  
   PackageModel? get package => _package; 
   List<String> get imageUrls => _imageUrls;
   bool get isLoading => _isLoading;
  /// Function to fetch package details
-  // This function takes a packageId as an argument and fetches the package details from the API
   Future<void> fetchPackageDetail(int packageId) async {
     _isLoading = true;
     notifyListeners(); // Notify listeners to update the UI
-    // Fetch package details from the API
-    // It uses the http package to make a GET request to the API
-    // It uses the AppConfig class to get the base URL of the API
+
 
     try {
       final res = await http.get(

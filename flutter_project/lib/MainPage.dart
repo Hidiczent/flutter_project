@@ -7,8 +7,9 @@ import 'package:flutter_project/Screens/PackagePages/Main_PackagePage.dart';
 import 'package:provider/provider.dart';
 import '../provider/bottom_nav_provider.dart';
 
+// flutter pub add provider
 class MainPage extends StatelessWidget {
-  MainPage({super.key});
+  const MainPage({super.key});
 
   final List<Widget> pages = const [
     HomePage(),
@@ -21,9 +22,8 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final navProvider = Provider.of<BottomNavProvider>(context);
-
     return Scaffold(
-      // ✅ ใช้ IndexedStack เพื่อเก็บ state ของแต่ละหน้า
+      //  use IndexedStack for save  state pages
       body: Container(
         color: const Color(0xFFF9F9F9),
         child: IndexedStack(index: navProvider.currentIndex, children: pages),

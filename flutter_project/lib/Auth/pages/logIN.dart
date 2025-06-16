@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Login failed')));
+        ).showSnackBar(const SnackBar(content: Text('Your email or password is incorrect')));
       }
     } catch (e) {
       print('❌ Error: $e');

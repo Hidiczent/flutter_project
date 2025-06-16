@@ -7,6 +7,7 @@ import 'package:flutter_project/provider/package_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() => runApp(
+  
   MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => BottomNavProvider()),
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
           centerTitle: true,
           iconTheme: IconThemeData(
             color: Colors.white,
-          ), // ✅ ทำให้ปุ่ม back สีขาว
+          ), 
           backgroundColor: Color(0xFF084886),
           titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
         ),

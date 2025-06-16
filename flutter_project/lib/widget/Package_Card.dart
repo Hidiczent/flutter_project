@@ -32,7 +32,7 @@ class PackageCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min, // ✅ ป้องกันสูงเกินไป
+          mainAxisSize: MainAxisSize.min, 
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.vertical(

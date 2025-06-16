@@ -40,6 +40,7 @@ class _HomePageState extends State<HomePage> {
       print("❌ No token found");
     }
   }
+
   /// Fetch unread notifications count
   Future<void> fetchUnreadNotificationsCount() async {
     final prefs = await SharedPreferences.getInstance();
@@ -64,6 +65,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final packageProvider = Provider.of<PackageProvider>(context);
     final packages = packageProvider.packages;
+
     final filteredPackages =
         packages
             .where(

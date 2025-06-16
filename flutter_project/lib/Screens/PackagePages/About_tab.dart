@@ -44,12 +44,12 @@ class _AboutTabState extends State<AboutTab> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "${widget.package.title}",
+                  widget.package.title,
                   style: const TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  "${widget.package.about}",
+                  widget.package.about,
                   style: const TextStyle(color: Colors.grey),
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
@@ -74,7 +74,7 @@ class _AboutTabState extends State<AboutTab> {
               physics: NeverScrollableScrollPhysics(),
               children: [
                 SectionTitle("About Trip"),
-                ...widget.package.tourInfo.map((t) => BulletText(t)).toList(),
+                ...widget.package.tourInfo.map((t) => BulletText(t)),
 
                 // BulletText("Limit : 5 people"),
                 // BulletText("Start trip 1: 15 July - 22 July 2024"),

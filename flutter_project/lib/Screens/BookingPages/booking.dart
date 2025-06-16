@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project/config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -70,11 +69,9 @@ class _BookingFormPageState extends State<BookingFormPage> {
     try {
       final parts = input.split('/');
       if (parts.length != 3) return null;
-
       final year = parts[0];
       final month = parts[2].padLeft(2, '0');
       final day = parts[1].padLeft(2, '0');
-
       return "$year-$month-$day";
     } catch (_) {
       return null;
@@ -94,7 +91,19 @@ class _BookingFormPageState extends State<BookingFormPage> {
   String? formatBookingDate(String input) {
     try {
       final parsed = DateFormat('dd/MM/yyyy').parseStrict(input);
-      return parsed.toIso8601String(); // ส่งไป backend ได้เลย
+
+      // เพิ่มเวลาเป็นเที่ยงวันเพื่อลดโอกาสลดวันจาก timezone
+      final adjusted = DateTime(
+        parsed.year,
+        parsed.month,
+        parsed.day,
+        12, // 12:00 PM
+        0,
+        0,
+      );
+
+      // แปลงเป็น UTC แล้วส่งออกแบบ ISO
+      return adjusted.toUtc().toIso8601String(); // ✅ ส่งไป backend แบบถูกต้อง
     } catch (_) {
       return null;
     }
@@ -163,7 +172,6 @@ class _BookingFormPageState extends State<BookingFormPage> {
           "date_for_booking": DateTime.now().toIso8601String(),
           "number_of_participants": 1,
           "passport_number": passportController.text,
-
           "note": noteController.text,
           "package_id": widget.packageId,
         });
@@ -337,7 +345,7 @@ class _BookingFormPageState extends State<BookingFormPage> {
                         );
                       }).toList(),
                   onChanged: (val) {
-                    print("Selected: $val"); // ✅ Debug
+                    // print("Selected: $val"); // ✅ Debug
                     setState(() => selectedNationalityId = val);
                   },
                   validator: (val) => val == null ? 'Required' : null,

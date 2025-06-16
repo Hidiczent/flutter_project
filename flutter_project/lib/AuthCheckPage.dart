@@ -46,7 +46,7 @@ class AuthCheckPage extends StatelessWidget {
           );
         }
         if (snapshot.hasData && snapshot.data == true) {
-          return MainPage(); // ✅ ตอนนี้อยู่ใน scope ของ MultiProvider แล้ว
+          return MainPage(); 
         } else {
           return const LoginPage();
         }

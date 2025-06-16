@@ -18,7 +18,7 @@ class _PackagePageState extends State<PackagePage> {
     final packageProvider = Provider.of<PackageProvider>(context);
     final allPackages = packageProvider.packages;
 
-    // ✅ กรองรายการตามคำค้นหา
+    // ✅ Fillter packages based on search query
     final filteredPackages =
         allPackages
             .where(
@@ -26,11 +26,14 @@ class _PackagePageState extends State<PackagePage> {
                   pkg.title.toLowerCase().contains(searchQuery.toLowerCase()),
             )
             .toList();
-
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       appBar: AppBar(
-        title: const Text('All Packages'),
+        title: const Text(
+          'All Packages',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
         backgroundColor: const Color(0xFF084886),
         elevation: 2,
       ),
@@ -63,7 +66,7 @@ class _PackagePageState extends State<PackagePage> {
 
                     const SizedBox(height: 16),
 
-                    // ✅ รายการแพ็คเกจ
+                    // List of packages
                     Expanded(
                       child:
                           filteredPackages.isEmpty
