@@ -1,0 +1,246 @@
+
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:laoepic_thesis_app/features/auth/pages/change_password_page.dart';
+import 'package:laoepic_thesis_app/features/auth/pages/edit_email_page.dart';
+import 'package:laoepic_thesis_app/features/auth/pages/edit_username_page.dart';
+import 'package:laoepic_thesis_app/core/api/api_locale_prefs.dart';
+import 'package:laoepic_thesis_app/i18n/i18n_keys.dart';
+import 'package:laoepic_thesis_app/i18n/ui_i18n.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:laoepic_thesis_app/config/app_config.dart';
+import 'package:laoepic_thesis_app/shared/widgets/app_feedback.dart';
+
+/// Profile editor for display name, avatar, and links to username or email changes.
+class EditProfilePage extends StatefulWidget {
+  const EditProfilePage({super.key});
+
+  @override
+  State<EditProfilePage> createState() => _EditProfilePageState();
+}
+
+class _EditProfilePageState extends State<EditProfilePage> {
+  final ImagePicker _picker = ImagePicker();
+  late String token;
+  late int userId;
+  late String photoUrl = '';
+  Uint8List? _imageBytes;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserData();
+  }
+
+  void showErrorDialog(String message) {
+    final i18n = context.read<UiI18n>();
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(i18n.tr(I18nKey.authUploadFailed)),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(i18n.tr(I18nKey.commonOk)),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Future<void> loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('user_id') ?? 0;
+    token = prefs.getString('jwt_token') ?? '';
+    photoUrl = prefs.getString('user_photo_url') ?? '';
+    setState(() {});
+  }
+
+  Future<void> pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
+
+    final bytes = await pickedFile.readAsBytes();
+
+    setState(() {
+      _imageBytes = bytes;
+    });
+
+    print('✅ Selected image');
+  }
+
+  Future<void> uploadImage() async {
+    if (_imageBytes == null || userId == 0) {
+      print('⚠️ No image selected or userId/token missing.');
+      return;
+    }
+
+    var request = http.MultipartRequest(
+      'PUT',
+      Uri.parse('${AppConfig.baseUrl}/users/profile-photo'),
+    );
+
+    request.headers.addAll(
+      await buildAuthApiHeaders(token.isEmpty ? null : token),
+    );
+    request.files.add(
+      http.MultipartFile.fromBytes(
+        'photo',
+        _imageBytes!,
+        filename: 'profile_photo.jpg',
+      ),
+    );
+
+    try {
+      var response = await request.send();
+      final resBody = await response.stream.bytesToString();
+      print('📦 Server Response Body: $resBody');
+      final i18n = context.read<UiI18n>();
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(resBody);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_photo_url', data['path'] ?? '');
+
+        if (!mounted) return;
+        await AppFeedback.showSuccess(
+          context,
+          message: i18n.tr(I18nKey.authProfilePhotoUpdated),
+        );
+        setState(() {
+          photoUrl = data['path'] ?? '';
+          _imageBytes = null;
+        });
+      } else {
+        showErrorDialog('❌ Upload failed:\n$resBody');
+      }
+    } catch (e) {
+      print('❌ Error uploading image: $e');
+      showErrorDialog('❌ Upload failed: $e');
+    }
+  }
+
+  Widget _infoTile(String title, String subtitle, {VoidCallback? onTap}) {
+    return ListTile(
+      contentPadding: const EdgeInsets.all(5),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text(subtitle, style: const TextStyle(color: Colors.black)),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: onTap,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final i18n = context.watch<UiI18n>();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          i18n.tr(I18nKey.authEditProfileHubTitle),
+          style: const TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF084887),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      backgroundColor: Colors.white,
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        children: [
+          const SizedBox(height: 12),
+          Center(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.grey[300],
+                  backgroundImage:
+                      _imageBytes != null
+                          ? MemoryImage(_imageBytes!)
+                          : (photoUrl.isNotEmpty
+                              ? NetworkImage(AppConfig.mediaUrl(photoUrl))
+                              : const AssetImage('assets/images/person1.jpg')
+                                  as ImageProvider),
+                ),
+                GestureDetector(
+                  onTap: pickImage,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.camera_alt, color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Center(
+            child: ElevatedButton(
+              onPressed: uploadImage,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF084887),
+                minimumSize: const Size.fromHeight(45),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                i18n.tr(I18nKey.authSaveProfilePhoto),
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          _infoTile(
+            i18n.tr(I18nKey.authUsernameLabel),
+            i18n.tr(I18nKey.authTapUpdateUsername),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EditUsernamePage(),
+                  ),
+                ),
+          ),
+          _infoTile(
+            i18n.tr(I18nKey.authSignUpEmail),
+            i18n.tr(I18nKey.authTapUpdateEmail),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const EditEmailPage()),
+                ),
+          ),
+          _infoTile(
+            i18n.tr(I18nKey.accountChangePassword),
+            i18n.tr(I18nKey.authTapUpdatePassword),
+            onTap:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ChangePasswordPage(),
+                  ),
+                ),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+}
